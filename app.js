@@ -5,6 +5,13 @@ const logger = require("morgan");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const errorMiddleware = require("./src/middlewares/Error");
+const rootRouter = require("./rootRouter");
+const { config } = require('dotenv');
+const dbConnection = require("./src/config/db");
+config({
+    path: "./.env"
+});
+dbConnection();
 
 app.use(express.json());
 app.use(cors());
@@ -13,7 +20,8 @@ app.use(morgan('common'));
 app.use(helmet());
 
 
-// app.use('/api/v1', )
+
+app.use('/api/v1', rootRouter);
 
 app.get('/', (req, res) => {
     res.send("<h1>welcome to New Gen Social App</h1>");
