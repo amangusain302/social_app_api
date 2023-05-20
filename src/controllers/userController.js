@@ -3,6 +3,8 @@ const UserModel = require("../models/userModel");
 const bycrpt = require('bcrypt');
 const genJWTtoken = require("../utils/genJWTtoken");
 const ErrorHandler = require("../utils/errorHandler");
+const User = require("../models/userModel");
+const { buildCheckFunction } = require("express-validator");
 
 
 exports.userRegistration = catchAsyncError(async(req, res, next) => {
@@ -22,11 +24,40 @@ exports.userRegistration = catchAsyncError(async(req, res, next) => {
 
     const accessToken = await genJWTtoken(newUser);
     newUser._doc['jwtToken'] = accessToken;
+    delete user._doc.password;
 
     res.status(201).json({
         success: true,
         message: "Account created successfully",
         newUser
     })
+})
 
+exports.logIn = catchAsyncError(async(req, res, next) => {
+    var { email_id, password } = req.body;
+    const user = await UserModel.findOne({ email_id: email_id })
+    if (!user) {
+        next(new ErrorHandler("Invalid Credentials"), 400);
+    }
+    const comparePass = await bycrpt.compare(password, user.password);
+    if (!comparePass) {
+        next(new ErrorHandler("Invalid Credentials"), 400);
+    }
+    const accessToken = await genJWTtoken(user);
+    user._doc['jwtToken'] = accessToken;
+    delete user._doc.password;
+
+    res.status(200).json({
+        success: true,
+        message: "User login successfully",
+        user
+    })
+})
+
+exports.getAllUsers = catchAsyncError(async(req, res, next) => {
+    const users = await UserModel.find();
+    res.status(200).json({
+        success: true,
+        allUsers: users
+    })
 })
