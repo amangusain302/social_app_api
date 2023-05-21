@@ -32,7 +32,7 @@ app.use(helmet());
 app.use('/api/v1', rootRouter);
 
 app.get('/', (req, res) => {
-    res.send("<h1>welcome to New Gen Social App</h1>");
+    res.send("<h1 align='center'>welcome to New Gen Social App</h1>");
 })
 
 
