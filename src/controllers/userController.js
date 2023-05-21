@@ -3,7 +3,6 @@ const UserModel = require("../models/userModel");
 const bycrpt = require('bcrypt');
 const genJWTtoken = require("../utils/genJWTtoken");
 const ErrorHandler = require("../utils/errorHandler");
-const User = require("../models/userModel");
 const { buildCheckFunction } = require("express-validator");
 
 
@@ -55,9 +54,36 @@ exports.logIn = catchAsyncError(async(req, res, next) => {
 })
 
 exports.getAllUsers = catchAsyncError(async(req, res, next) => {
-    const users = await UserModel.find();
+    const users = await UserModel.find().select("-password");
     res.status(200).json({
         success: true,
         allUsers: users
+    })
+})
+
+exports.getProfile = catchAsyncError(async(req, res, next) => {
+    const userId = req.query.userId || req.user._id;
+    const profile = await UserModel.findOne({ _id: userId }).select("-password");
+    console.log(toString(profile._id))
+    if (userId === req.user._id) {
+        profile._doc.myProfile = true;
+    } else {
+        profile._doc.myProfile = false;
+    }
+    res.status(200).json({
+        success: true,
+        profile
+    })
+})
+
+exports.changeUserStatus = catchAsyncError(async(req, res, next) => {
+    const user = await UserModel.findOne({ _id: req.user._id });
+    var status = (user.profile_status === "public") ? "private" : "public";
+    const updateStatus = await UserModel.findOneAndUpdate({ _id: req.user._id }, {
+        $set: { profile_status: status }
+    })
+    res.status(202).json({
+        success: true,
+        message: `Your profile is ${status} now`
     })
 })

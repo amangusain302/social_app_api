@@ -26,8 +26,16 @@ const schema = new mongoose.Schema({
         type: String,
         enum: ["public", "private"],
         default: "public"
+    },
+    follower: {
+        type: Number,
+        default: 0
+    },
+    following: {
+        type: Number,
+        default: 0
     }
-});
+}, { timestamps: true });
 
 const User = new mongoose.model('users', schema);
 

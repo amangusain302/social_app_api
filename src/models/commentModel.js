@@ -1,34 +1,30 @@
 const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({
-    name: String,
-    user_id: {
-        type: Number,
-        required: true
+    post: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: [true, "post field are required"]
     },
-    email_id: {
-        type: String,
-        required: true,
-        unique: true
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: [true, "user field are required"]
     },
-    user_name: {
+    comment: {
         type: String,
-        require: true,
-        unique: true
+        required: [true, "comment can't be empty"]
     },
-    mobile: String,
-    gender: {
-        type: String,
-        enum: ["male", "female", "other"]
-    },
-    password: String,
-    profile_status: {
-        type: String,
-        enum: ["public", "private"],
-        default: "public"
-    }
-});
+    reply: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: [true, "user field are required"]
+        },
+        replyed: {
+            type: String,
+            required: [true, "replyed can't be empty"]
+        }
+    }]
+}, { timestamps: true });
 
-const User = new mongoose.model('users', schema);
+const commentModel = new mongoose.model('comments', schema);
 
-module.exports = User;
+module.exports = commentModel;

@@ -10,6 +10,11 @@ const Schema = new mongoose.Schema({
             type: String,
         }
     }],
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "users"
+    },
     hashtag: Array,
     user_tag: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -22,8 +27,21 @@ const Schema = new mongoose.Schema({
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "users"
-    }]
-})
+    }],
+    likeCount: {
+        type: Number,
+        default: 0,
+    },
+    commentCount: {
+        type: Number,
+        default: 0,
+    },
+    post_status: {
+        type: String,
+        enum: ["public", "private"],
+        default: "public"
+    },
+}, { timestamps: true })
 
 const Post = new mongoose.model("post", Schema);
 
