@@ -34,6 +34,13 @@ const schema = new mongoose.Schema({
     following: {
         type: Number,
         default: 0
+    },
+    postCount : {
+        type: Number,
+        default: 0
+    },
+    blockUsers : {
+        type : Array
     }
 }, { timestamps: true });
 

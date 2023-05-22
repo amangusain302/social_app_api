@@ -87,3 +87,57 @@ exports.changeUserStatus = catchAsyncError(async(req, res, next) => {
         message: `Your profile is ${status} now`
     })
 })
+
+exports.editProfile = catchAsyncError(async(req, res, next) => {
+    const _id = req.user._id
+    const editprofile = await UserModel.findOneAndUpdate({_id}, {
+        $set : req.body 
+    }, {new : true}).select("-password").catch( err => {
+       if(err.code === 11000){   
+        res.status(400).json({
+            success: false,
+            message:  `This ${Object.keys(err.keyValue)[0]} is already used`
+        })
+       }
+       res.status(500).json({
+        success: false,
+        message:  err.message
+    })
+    })
+    res.status(202).json({
+        success: true,
+        message: "profile updated successfully"
+    })
+})
+
+exports.blockUser = catchAsyncError(async(req, res, next) => {
+    const _id = req.user._id
+    const userId = req.query.userId;
+    if(userId === _id)
+    {
+        next(new ErrorHandler("You cannot block Yourself", 400))
+    }
+    const blockUser = await UserModel.findOneAndUpdate({_id}, {
+        $push : {blockUsers : userId}
+    })
+    res.status(202).json({
+        success: true,
+        message: "You blocked this user successfully"
+    })
+})
+
+exports.unblockUser = catchAsyncError(async(req, res, next) => {
+    const _id = req.user._id
+    const userId = req.query.userId;
+    if(userId === _id)
+    {
+        next(new ErrorHandler("You cannot block Yourself. so cannot unblock", 400))
+    }
+    const blockUser = await UserModel.findOneAndUpdate({_id}, {
+        $pull : {blockUsers : userId}
+    })
+    res.status(202).json({
+        success: true,
+        message: "You Unblocked this user successfully"
+    })
+})

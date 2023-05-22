@@ -4,7 +4,7 @@ const { addFollower, unFollow } = require('../controllers/followController');
 const router = express.Router();
 
 router.post('/add', authorization, addFollower);
-router.post('/remove', authorization, unFollow);
+router.delete('/remove', authorization, unFollow);
 // router.post('/login', logIn);
 // router.get('/', authorization, getAllUsers);
 

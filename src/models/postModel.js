@@ -41,6 +41,10 @@ const Schema = new mongoose.Schema({
         enum: ["public", "private"],
         default: "public"
     },
+    delete: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 const Post = new mongoose.model("post", Schema);
