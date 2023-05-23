@@ -64,11 +64,17 @@ exports.getAllUsers = catchAsyncError(async(req, res, next) => {
 exports.getProfile = catchAsyncError(async(req, res, next) => {
     const userId = req.query.userId || req.user._id;
     const profile = await UserModel.findOne({ _id: userId }).select("-password");
-    console.log(toString(profile._id))
+    console.log(profile._id)
     if (userId === req.user._id) {
         profile._doc.myProfile = true;
     } else {
         profile._doc.myProfile = false;
+        const myProfile = await UserModel.findOne({ _id: req.user._id }).select("-password");
+        console.log((myProfile.blockUsers).includes(userId) && (profile.blockUsers).includes(req.user._id));
+        if((myProfile.blockUsers).includes(userId) || (profile.blockUsers).includes(req.user._id))
+        {
+            next(new ErrorHandler("You can't access this user profile", 400));
+        }
     }
     res.status(200).json({
         success: true,

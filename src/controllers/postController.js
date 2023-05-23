@@ -4,6 +4,7 @@ const User = require("../models/userModel");
 const ErrorHandler = require("../utils/errorHandler");
 const getDataUri = require("../utils/getDataUri");
 const uploadFile = require("../utils/uploadFiles"); 
+var ObjectId = require('mongodb').ObjectId;
 const mongoose = require('mongoose');
 
 
@@ -134,31 +135,36 @@ exports.editPost = catchAsyncError(async(req, res, next) => {
 })
 
 exports.getUserLikesPost = catchAsyncError(async(req, res, next) => {
-    const _id = req.query.postId;
-    const user = req.user._id;
-    console.log(_id);
+    const _id = new ObjectId(req.query.postId);
+    const user = new ObjectId(req.user._id);
     const postLikes = await Post.aggregate([
         {
             $match : {
-                likeCount : 1
+              _id,
+              user
             }
         },
-        // {
-        //     $lookup : {
-        //         from : "users",
-        //         localField : "likes",
-        //         foreignField : "_id",
-        //         as : "likes"
-        //     }
-        // },
-        // {
-        //     $project : {
-        //         _id : 0,
-        //         likes : 1
-        //     }
-        // }
+        {
+            $lookup : {
+                from : "users",
+                localField : "likes",
+                foreignField : "_id",
+                as : "likes"
+            }
+        },
+        {
+            $project : {
+                _id : 0,
+                likes : 1
+            }
+        },
+        {
+            $project : {
+                likes : {password : 0 }
+            }
+        }
     ])
-    console.log(postLikes);
+
     if (!postLikes) {
         return next(new ErrorHandler("Sorry!!, You cannot see other's post likes", 400))
     }
@@ -167,3 +173,5 @@ exports.getUserLikesPost = catchAsyncError(async(req, res, next) => {
         users : postLikes
     })
 })
+
+
